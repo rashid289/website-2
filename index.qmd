@@ -1,0 +1,53 @@
+---
+title: "Billboard Graphic"
+execute:
+  echo: false
+---
+
+```{r}
+suppressPackageStartupMessages({
+library(tidyverse)
+})
+```
+
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(tidyr)
+
+# Load the billboard dataset
+data("billboard")
+
+# Extract the year from the `date.entered` column
+billboard <- billboard %>%
+  mutate(year = as.numeric(format(date.entered, "%Y")))  # Extract year as numeric
+
+# Filter top 10 songs in terms of rank for visualization
+top_songs <- billboard %>%
+  filter(year == 2000) %>%
+  group_by(track) %>%
+  slice_min(order_by = wk1, n = 10) %>%  # You can use `wk1` or other weekly ranks
+  ungroup()
+
+# Create the plot
+ggplot(top_songs, aes(x = reorder(track, wk1), y = wk1, fill = track)) + 
+  geom_bar(stat = "identity", show.legend = FALSE) + 
+  coord_flip() + 
+  labs(
+    title = "Top 10 Songs in 2000 by Billboard Rank",
+    subtitle = "Displaying the top 10 songs based on their first-week rank",
+    x = "Song",
+    y = "Rank (Week 1)",
+    caption = "Source: Billboard"
+  ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 10),
+    plot.caption = element_text(size = 10, face = "italic")
+  )
+
+```
